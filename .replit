@@ -1,0 +1,4 @@
+run = "pipenv run bot"
+
+[nix]
+channel = "stable-22_11"
