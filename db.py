@@ -1,6 +1,9 @@
 import enum
 import time
 import aiosqlite
+from typing import AsyncIterator, Dict, Any
+
+import bot
 
 db_path = './data.db'
 
@@ -32,7 +35,7 @@ async def create_forecast(
   shortname: str,
   description: str,
   author: str,
-  forecast_type: enum.Enum,
+  forecast_type: bot.ForecastType,
 ) -> int:
   async with aiosqlite.connect(db_path) as db:
     result = await db.execute(
@@ -60,7 +63,7 @@ async def create_estimate(
     await db.commit()
   return result.rowcount
 
-async def get_forecasts():
+async def get_forecasts() -> AsyncIterator[Dict[str, Any]]:
   async with aiosqlite.connect(db_path) as db:
     async with db.execute(
       'SELECT shortname, description, author, resolution FROM forecasts'
@@ -70,6 +73,24 @@ async def get_forecasts():
                'description': row[1],
                'author': row[2],
                'resolution': row[3]}
+
+async def get_forecast(shortname: str) -> Dict[str, Any]:
+  async with aiosqlite.connect(db_path) as db:
+    async with db.execute(
+      '''
+      SELECT shortname, description, author, forecast_type, resolution
+      FROM forecasts WHERE shortname = ?
+      ''',
+      (shortname,),
+    ) as cursor:
+      row = await cursor.fetchone()
+  return {
+    'shortname': row[0],
+    'description': row[1],
+    'author': row[2],
+    'forecast_type': bot.ForecastType(row[3]),
+    'resolution': row[4],
+  }
 
 async def get_estimates(
   shortname: str,
