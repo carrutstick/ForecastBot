@@ -126,7 +126,7 @@ async def list_forecasts(ctx):
   msgs = []
   for row in forecasts:
     author = bot.get_user(int(row["author"]))
-    msgs.append( f'**ID:** `{row["shortname"]}`\n'
+    msgs.append( f'**Shortname:** `{row["shortname"]}`\n'
                  f'**Description:** {row["description"]}\n'
                  f'**Author:** {author.name}\n'
                  f'**Resolution:** {row["resolution"]}\n')
