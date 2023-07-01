@@ -1,3 +1,4 @@
+from enum import Enum
 
 class ForecastType(Enum):
   PROB = 1

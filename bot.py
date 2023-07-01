@@ -22,7 +22,6 @@ keep_alive()
 
 import os
 import time
-from enum import Enum
 from itertools import cycle
 
 import discord
