@@ -103,6 +103,10 @@ async def estimate(
       est_val = float(estimate[:-1]) / 100.0
     else:
       est_val = float(estimate)
+
+    forecast = await db.get_forecast(shortname)
+    if (est_val < 0 or est_val > 1) and forecast['forecast_type'] == ForecastType.PROB:
+        raise ValueError('Probability estimates must be between 0 and 1 (between 0% and 100%)')
     
     rowcount = await db.create_estimate(
       shortname,
