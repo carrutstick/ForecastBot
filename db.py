@@ -35,7 +35,7 @@ async def create_forecast(
   shortname: str,
   description: str,
   author: str,
-  forecast_type: bot.ForecastType,
+  forecast_type: ForecastType,
 ) -> int:
   async with aiosqlite.connect(db_path) as db:
     result = await db.execute(
@@ -88,7 +88,7 @@ async def get_forecast(shortname: str) -> Dict[str, Any]:
     'shortname': row[0],
     'description': row[1],
     'author': row[2],
-    'forecast_type': bot.ForecastType(row[3]),
+    'forecast_type': ForecastType(row[3]),
     'resolution': row[4],
   }
 
