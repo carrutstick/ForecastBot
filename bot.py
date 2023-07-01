@@ -107,7 +107,7 @@ async def estimate(
     rowcount = await db.create_estimate(
       shortname,
       str(ctx.user.id),
-      float(estimate),
+      est_val,
     )
   except Exception as e:
     msg = f'Failed to create estimate: {e}'
