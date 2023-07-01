@@ -101,8 +101,10 @@ async def estimate(
       est_val = float(estimate)
 
     forecast = await db.get_forecast(shortname)
+    if forecast['resolution'] is not None:
+      raise ValueError('Cannot make estimate for forecast that has already resolved')
     if (est_val < 0 or est_val > 1) and forecast['forecast_type'] == ForecastType.PROB:
-        raise ValueError('Probability estimates must be between 0 and 1 (between 0% and 100%)')
+      raise ValueError('Probability estimates must be between 0 and 1 (between 0% and 100%)')
     
     rowcount = await db.create_estimate(
       shortname,
