@@ -3,7 +3,7 @@ import time
 import aiosqlite
 from typing import AsyncIterator, Dict, Any
 
-import bot
+from common import ForecastType
 
 db_path = './data.db'
 

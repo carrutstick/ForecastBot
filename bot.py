@@ -29,11 +29,8 @@ import discord
 from discord.ext import commands, tasks
 from discord import app_commands
 
+from common import ForecastType
 import db
-
-class ForecastType(Enum):
-  PROB = 1
-  SCALAR = 2
 
 TOKEN = os.environ['DISCORD_TOKEN']
 supported_guilds = [
