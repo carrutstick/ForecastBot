@@ -22,6 +22,7 @@ keep_alive()
 
 import os
 import time
+import math
 from itertools import cycle
 
 import discord
@@ -103,6 +104,8 @@ async def estimate(
     forecast = await db.get_forecast(shortname)
     if forecast['resolution'] is not None:
       raise ValueError('Cannot make estimate for forecast that has already resolved')
+    if not math.isfinite(est_val):
+      raise ValueError('Invalid value for probability estimate')
     if (est_val < 0 or est_val > 1) and forecast['forecast_type'] == ForecastType.PROB:
       raise ValueError('Probability estimates must be between 0 and 1 (between 0% and 100%)')
     
