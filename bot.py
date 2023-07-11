@@ -90,7 +90,7 @@ async def make_forecast(
       msg = (f'**{ctx.user.name}** created forecast `{shortname}`.\n'
              f'**Description:** {description}\n'
              f'**Forecast type:** `{forecast_type}`' )
-  await built_commands()
+  await build_commands()
   await sync_commands()
   await ctx.response.send_message(msg)
   
