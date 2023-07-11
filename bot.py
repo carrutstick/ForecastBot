@@ -28,6 +28,7 @@ from itertools import cycle
 import discord
 from discord.ext import commands, tasks
 from discord import app_commands
+from discord.app_commands.commands import Command
 
 from common import ForecastType
 import db
@@ -51,19 +52,22 @@ status = cycle(['with Python','JetHub'])
 async def change_status():
   await bot.change_presence(activity=discord.Game(next(status)))
 
-@bot.event
-async def on_ready():
-  print(f'Logged in as {bot.user} (ID: {bot.user.id})')
-  change_status.start()
+async def sync_commands():
   for guild_id in supported_guilds:
     guild = bot.get_guild(guild_id)
     print(f'Guild: {guild}')
     bot.tree.copy_global_to(guild=guild)
     await bot.tree.sync(guild=guild)
+
+@bot.event
+async def on_ready():
+  print(f'Logged in as {bot.user} (ID: {bot.user.id})')
+  change_status.start()
+  await build_commands()
+  await sync_commands()
   await db.ensure_schema()
   print('------')
 
-@bot.tree.command()
 async def make_forecast(
   ctx,
   shortname: str,
@@ -86,9 +90,10 @@ async def make_forecast(
       msg = (f'**{ctx.user.name}** created forecast `{shortname}`.\n'
              f'**Description:** {description}\n'
              f'**Forecast type:** `{forecast_type}`' )
+  await built_commands()
+  await sync_commands()
   await ctx.response.send_message(msg)
   
-@bot.tree.command()
 async def estimate(
   ctx,
   shortname: str,
@@ -123,7 +128,6 @@ async def estimate(
       msg = f'**{ctx.user.name}** estimated **{estimate}** in forecast `{shortname}`'
   await ctx.response.send_message(msg)
 
-@bot.tree.command()
 async def list_forecasts(ctx):
   forecasts = []
   async for row in db.get_forecasts():
@@ -138,7 +142,6 @@ async def list_forecasts(ctx):
   msg = "---\n".join(msgs)
   await ctx.response.send_message(msg)
 
-@bot.tree.command()
 async def list_estimates(ctx, shortname: str):
   estimates = []
   async for row in db.get_estimates(shortname):
@@ -152,11 +155,9 @@ async def list_estimates(ctx, shortname: str):
   msg = "\n".join(msgs)
   await ctx.response.send_message(msg)
 
-@bot.tree.command()
 async def user_forecasts(ctx, member: discord.Member):
   await ctx.response.send_message(f'This functionality is not yet implemented')
 
-@bot.tree.command()
 async def resolve(ctx, shortname: str, result: str):
   try:
     rowcount = await db.resolve_forecast(
@@ -171,5 +172,25 @@ async def resolve(ctx, shortname: str, result: str):
     else:
       msg = f'Forecast `{shortname}` resolved to **{result}**!'
   await ctx.response.send_message(msg)
+
+async def build_commands():
+  fcsts = []
+  async for fcst in db.get_forecasts():
+    fcsts.append(fcst['shortname'])
+
+  for func in [make_forecast, estimate, list_forecasts, list_estimates, user_estimates, resolve]:
+    if func == estimate:
+      func.__discord_app_commands_param_choices__ = {'shortname': fcsts}
+
+    cmd = Command(
+      name=func.__name__,
+      description='…',
+      callback=func,
+      nsfw=False,
+      parent=None,
+      auto_locale_strings=True,
+      extras=None,
+    )
+    bot.tree.add_command(cmd, override=True)
 
 bot.run(TOKEN)
