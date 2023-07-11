@@ -178,7 +178,7 @@ async def build_commands():
   async for fcst in db.get_forecasts():
     fcsts.append(fcst['shortname'])
 
-  for func in [make_forecast, estimate, list_forecasts, list_estimates, user_estimates, resolve]:
+  for func in [make_forecast, estimate, list_forecasts, list_estimates, user_forecasts, resolve]:
     if func == estimate:
       func.__discord_app_commands_param_choices__ = {'shortname': fcsts}
 
