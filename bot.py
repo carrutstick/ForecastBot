@@ -176,7 +176,8 @@ async def resolve(ctx, shortname: str, result: str):
 async def build_commands():
   fcsts = []
   async for fcst in db.get_forecasts():
-    fcsts.append(fcst['shortname'])
+    shortname = fcst['shortname']
+    fcsts.append(app_commands.Choice(name=shortname, value=shortname))
 
   for func in [make_forecast, estimate, list_forecasts, list_estimates, user_forecasts, resolve]:
     if func == estimate:
