@@ -180,7 +180,7 @@ async def build_commands():
     fcsts.append(app_commands.Choice(name=shortname, value=shortname))
 
   for func in [make_forecast, estimate, list_forecasts, list_estimates, user_forecasts, resolve]:
-    if func == estimate:
+    if func in (estimate, resolve, list_estimates):
       func.__discord_app_commands_param_choices__ = {'shortname': fcsts}
 
     cmd = Command(
